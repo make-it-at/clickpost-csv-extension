@@ -194,13 +194,18 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
 
   function updateCheckboxes() {
     const rows = getOrderRows();
+    console.log('[CP-CSV] updateCheckboxes rows:', rows.length);
 
-    rows.forEach((row) => {
+    rows.forEach((row, i) => {
+      const parentCls = row.parentNode ? row.parentNode.className : 'NO_PARENT';
+      const alreadyWrapped = row.parentNode && row.parentNode.classList.contains('cp-card-wrapper');
+      console.log(`[CP-CSV] row[${i}] class="${row.className}" parent="${parentCls}" alreadyWrapped=${alreadyWrapped}`);
+
       // 既にラップ済みならスキップ
-      if (row.parentNode && row.parentNode.classList.contains('cp-card-wrapper')) return;
+      if (alreadyWrapped) return;
 
       const orderId = extractOrderId(row);
-      console.log('[CP-CSV] orderId:', orderId, row);
+      console.log('[CP-CSV] orderId:', orderId);
       if (!orderId) return;
 
       const cb = document.createElement('input');
