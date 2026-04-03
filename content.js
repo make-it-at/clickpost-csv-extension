@@ -236,15 +236,29 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
 
     // .btn_order リンクから取得（リベシティフリマの実際の構造）
     const btnOrder = row.querySelector('.btn_order');
+    console.log('[CP-CSV] btn_order:', btnOrder ? btnOrder.tagName + ' href=' + (btnOrder.href || btnOrder.getAttribute('href') || 'NONE') : 'NOT FOUND');
     if (btnOrder) {
-      const match = btnOrder.href.match(/\/orders\/(\d+)/);
+      const href = btnOrder.href || btnOrder.getAttribute('href') || '';
+      const match = href.match(/\/orders\/(\d+)/);
       if (match) return match[1];
     }
 
-    // 汎用リンクから取得
-    const link = row.querySelector('a[href*="/orders/"]');
+    // 全リンクをスキャン
+    const allLinks = row.querySelectorAll('a[href], [href]');
+    console.log('[CP-CSV] all links in row:', Array.from(allLinks).map(l => l.href || l.getAttribute('href')));
+
+    const link = row.querySelector('a[href*="orders"]');
     if (link) {
-      const match = link.href.match(/\/orders\/(\d+)/);
+      const href = link.href || link.getAttribute('href') || '';
+      const match = href.match(/orders[\/\-_]?(\d+)/);
+      if (match) return match[1];
+    }
+
+    // onclickやdata-hrefから取得
+    const clickEls = row.querySelectorAll('[onclick*="orders"], [data-href*="orders"], [data-url*="orders"]');
+    for (const el of clickEls) {
+      const src = el.getAttribute('onclick') || el.getAttribute('data-href') || el.getAttribute('data-url') || '';
+      const match = src.match(/orders[\/\-_]?(\d+)/);
       if (match) return match[1];
     }
 
