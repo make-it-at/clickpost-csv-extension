@@ -16,7 +16,7 @@
   "content_scripts": [
     {
       "matches": ["https://furima.libecity.com/seller/orders*"],
-      "js": ["lib/encoding.min.js", "content.js"],
+      "js": ["content.js"],
       "css": ["content.css"],
       "run_at": "document_idle"
     }

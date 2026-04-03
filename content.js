@@ -3,6 +3,9 @@
  * リベシティフリマ注文一覧ページへのUI注入スクリプト
  */
 
+// スクリプト注入確認用（IIFEの外）
+console.log('[CP-CSV] content.js スクリプト注入OK');
+
 (function () {
   'use strict';
 
@@ -27,28 +30,22 @@
   }
 
   function checkAndInject() {
-    // 「取引中」タブがアクティブかどうか確認
-    const activeTab = document.querySelector('.tab-item.active, .nav-link.active, [class*="tab"][class*="active"]');
-
     // URL に /seller/orders があることを確認（個別ページを除外）
     const path = window.location.pathname;
-    if (!path.match(/^\/seller\/orders\/?(\?.*)?$/)) {
-      // 個別ページでは注入しない（ただし /seller/orders/ まで）
-      if (path.match(/^\/seller\/orders\/[^/]+/)) {
-        return;
-      }
-    }
+    console.log('[CP-CSV] checkAndInject path:', path);
 
-    // 「取引中」タブの検出
-    const isTradingTabActive = isTradingActive();
-    if (!isTradingTabActive) {
-      removeInjectedUI();
+    if (path.match(/^\/seller\/orders\/[^/]+/)) {
+      console.log('[CP-CSV] 個別ページのためスキップ');
       return;
     }
 
     // 注文行が存在するか確認
     const orderRows = getOrderRows();
-    if (orderRows.length === 0) return;
+    console.log('[CP-CSV] 注文行数:', orderRows.length);
+    if (orderRows.length === 0) {
+      console.log('[CP-CSV] 注文行が見つかりません（まだDOMが未準備かも）');
+      return;
+    }
 
     // 既に注入済みの場合はチェックボックスのみ更新
     if (document.getElementById('cp-toolbar')) {
@@ -56,6 +53,7 @@
       return;
     }
 
+    console.log('[CP-CSV] UI注入開始');
     injectUI();
   }
 
@@ -119,14 +117,22 @@
 
     // 注文一覧コンテナの前に挿入
     const container = findOrderContainer();
-    if (!container) return;
-
-    container.parentNode.insertBefore(toolbar, container);
+    console.log('[CP-CSV] コンテナ:', container);
+    if (!container) {
+      console.warn('[CP-CSV] コンテナが見つかりません。注文行の前に直接挿入します');
+      const rows = getOrderRows();
+      if (rows.length > 0) {
+        rows[0].parentNode.insertBefore(toolbar, rows[0]);
+      }
+    } else {
+      container.parentNode.insertBefore(toolbar, container);
+    }
 
     // チェックボックス注入
     updateCheckboxes();
 
     injected = true;
+    console.log('[CP-CSV] UI注入完了');
   }
 
   function createToolbar() {
@@ -560,6 +566,9 @@
   // 初期化
   // =========================================================
   function init() {
+    console.log('[CP-CSV] content.js 読み込み完了 URL:', window.location.href);
+    console.log('[CP-CSV] isTradingActive:', isTradingActive());
+    console.log('[CP-CSV] getOrderRows:', getOrderRows().length, '件');
     checkAndInject();
     startObserver();
   }
