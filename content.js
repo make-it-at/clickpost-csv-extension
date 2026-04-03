@@ -145,6 +145,9 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
       container.parentNode.insertBefore(toolbar, container);
     }
 
+    // 「着金確認中・発送準備中の注文のみ表示する」フィルターを自動ON
+    autoEnableShippingFilter();
+
     // チェックボックス注入
     updateCheckboxes();
 
@@ -209,6 +212,36 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
     return null;
   }
 
+  function autoEnableShippingFilter() {
+    // 「着金確認中・発送準備中の注文のみ表示する」チェックボックスを自動ON
+    const labels = document.querySelectorAll('label, span');
+    for (const label of labels) {
+      if (label.textContent.includes('着金確認中') || label.textContent.includes('発送準備中')) {
+        const cb = label.querySelector('input[type="checkbox"]') ||
+                   label.previousElementSibling ||
+                   document.querySelector('input[type="checkbox"]');
+        if (cb && cb.type === 'checkbox' && !cb.checked) {
+          cb.click();
+          console.log('[CP-CSV] 発送準備中フィルターをONにしました');
+        }
+        return;
+      }
+    }
+    // ラベルと紐付いていないチェックボックスも探す
+    const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+    for (const cb of allCheckboxes) {
+      const sibling = cb.nextSibling || cb.parentElement;
+      const text = sibling ? sibling.textContent : '';
+      if (text.includes('着金確認中') || text.includes('発送準備中')) {
+        if (!cb.checked) {
+          cb.click();
+          console.log('[CP-CSV] 発送準備中フィルターをONにしました');
+        }
+        return;
+      }
+    }
+  }
+
   function updateCheckboxes() {
     const rows = getOrderRows();
 
@@ -231,16 +264,10 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
       cbLabel.title = '選択';
       cbLabel.appendChild(cb);
 
-      // .order_action 内（「注文管理画面へ」ボタンの直前）に挿入
-      const orderAction = row.querySelector('.order_action');
-      if (orderAction) {
-        orderAction.insertBefore(cbLabel, orderAction.firstChild);
-      } else {
-        // フォールバック: カード右上に絶対配置
-        row.style.position = 'relative';
-        cbLabel.style.cssText = 'position:absolute;top:8px;right:8px;z-index:50;';
-        row.appendChild(cbLabel);
-      }
+      // カード左端に絶対配置（padding-leftで内容を押し出す）
+      row.style.position = 'relative';
+      row.classList.add('cp-has-checkbox');
+      row.appendChild(cbLabel);
     });
   }
 
@@ -539,13 +566,15 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
   });
 
   function showResults(results) {
+    const succeeded = results.filter((r) => r.success).length;
     const failed = results.filter((r) => !r.success);
+    const downloadMsg = '📂 ダウンロードフォルダをご確認ください';
     if (failed.length === 0) {
-      showSuccess(`${results.filter((r) => r.success).length}件のCSVを生成しました`);
+      showSuccess(`✅ ${succeeded}件のCSVを生成しました\n${downloadMsg}`);
     } else {
       const failedIds = failed.map((r) => `✗ 注文ID: ${r.id} 取得失敗`).join('\n');
       showWarning(
-        `${results.filter((r) => r.success).length}件のCSVを生成しました。\n失敗: ${failed.length}件\n${failedIds}`
+        `⚠️ ${succeeded}件のCSVを生成しました（${failed.length}件失敗）\n${downloadMsg}\n\n${failedIds}`
       );
     }
   }
