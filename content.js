@@ -90,8 +90,9 @@
   }
 
   function getOrderRows() {
-    // 注文行のセレクタ（実際のサイト構造に合わせて調整）
+    // 注文行のセレクタ（リベシティフリマの実際のDOM構造に合わせた順序）
     const selectors = [
+      '.statusBox.seller',   // リベシティフリマの実際のセレクタ
       'tr[data-order-id]',
       '[class*="order-row"]',
       '[class*="order_row"]',
@@ -163,6 +164,7 @@
 
   function findOrderContainer() {
     const selectors = [
+      '.sortBox_seller',     // リベシティフリマの実際のコンテナ
       'table',
       '[class*="order-list"]',
       '[class*="order_list"]',
@@ -202,17 +204,17 @@
 
       cb.addEventListener('change', onCheckboxChange);
 
-      // チェックボックスをラップするセルを作成
-      const cbCell = document.createElement('td');
-      cbCell.className = 'cp-checkbox-cell';
-      cbCell.appendChild(cb);
+      // divカード構造に対応したラッパー
+      const cbWrapper = document.createElement('div');
+      cbWrapper.className = 'cp-checkbox-cell';
+      cbWrapper.appendChild(cb);
 
-      // 行の先頭に挿入
+      // カードの先頭に挿入（tr/tdの有無に関わらず対応）
       const firstCell = row.querySelector('td, th');
       if (firstCell) {
-        row.insertBefore(cbCell, firstCell);
+        row.insertBefore(cbWrapper, firstCell);
       } else {
-        row.prepend(cbCell);
+        row.prepend(cbWrapper);
       }
     });
   }
@@ -222,7 +224,14 @@
     if (row.dataset.orderId) return row.dataset.orderId;
     if (row.dataset.id) return row.dataset.id;
 
-    // リンクから取得
+    // .btn_order リンクから取得（リベシティフリマの実際の構造）
+    const btnOrder = row.querySelector('.btn_order');
+    if (btnOrder) {
+      const match = btnOrder.href.match(/\/orders\/(\d+)/);
+      if (match) return match[1];
+    }
+
+    // 汎用リンクから取得
     const link = row.querySelector('a[href*="/orders/"]');
     if (link) {
       const match = link.href.match(/\/orders\/(\d+)/);
