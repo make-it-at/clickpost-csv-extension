@@ -159,25 +159,41 @@
   color: #c62828;
 }
 
-/* チェックボックスセル */
+/* 注文カードを relative 基準に */
+.statusBox.seller {
+  position: relative !important;
+}
+
+/* チェックボックスセル（カード内の左上に絶対位置で配置） */
 .cp-checkbox-cell {
-  padding: 8px 12px;
-  vertical-align: middle;
-  text-align: center;
-  width: 40px;
-  min-width: 40px;
+  position: absolute !important;
+  top: 10px !important;
+  left: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 100 !important;
+  background: rgba(255,255,255,0.9);
+  border-radius: 4px;
+  padding: 2px;
 }
 
 .cp-checkbox {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   cursor: pointer;
   accent-color: #4CAF50;
-  border-radius: 3px;
+  flex-shrink: 0;
 }
 
 .cp-checkbox:hover {
   transform: scale(1.1);
+}
+
+/* チェック済みカードをハイライト */
+.statusBox.seller:has(.cp-checkbox:checked) {
+  outline: 2px solid #4CAF50;
+  background-color: #f1f8f1 !important;
 }
 
 /* レスポンシブ */
