@@ -1,0 +1,198 @@
+/* =========================================================
+   content.css
+   クリックポストCSV生成拡張機能のスタイル
+   リベシティフリマのデザインに馴染むスタイル
+   ========================================================= */
+
+/* ツールバー */
+#cp-toolbar {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Sans', sans-serif;
+  font-size: 14px;
+}
+
+.cp-toolbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cp-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cp-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ボタン */
+.cp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.cp-btn:focus {
+  outline: 2px solid #4CAF50;
+  outline-offset: 2px;
+}
+
+.cp-btn-primary {
+  background: #4CAF50;
+  color: #fff;
+}
+
+.cp-btn-primary:hover:not(:disabled) {
+  background: #43A047;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.4);
+}
+
+.cp-btn-primary:disabled {
+  background: #a5d6a7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.cp-btn-secondary {
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.cp-btn-secondary:hover {
+  background: #eeeeee;
+}
+
+/* 件数表示 */
+.cp-count {
+  color: #555;
+  font-size: 13px;
+}
+
+.cp-count.cp-count-warning {
+  color: #e65100;
+  font-weight: 600;
+}
+
+/* 警告バナー */
+.cp-warning {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #fff3e0;
+  border: 1px solid #ffb74d;
+  border-radius: 6px;
+  color: #e65100;
+  font-size: 13px;
+}
+
+/* プログレスバー */
+.cp-progress {
+  margin-top: 10px;
+}
+
+.cp-progress-text {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.cp-progress-bar {
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.cp-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #81C784);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* 通知 */
+.cp-notification {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cp-notification-success {
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  color: #2e7d32;
+}
+
+.cp-notification-warning {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  color: #f57f17;
+}
+
+.cp-notification-error {
+  background: #ffebee;
+  border: 1px solid #ef9a9a;
+  color: #c62828;
+}
+
+/* チェックボックスセル */
+.cp-checkbox-cell {
+  padding: 8px 12px;
+  vertical-align: middle;
+  text-align: center;
+  width: 40px;
+  min-width: 40px;
+}
+
+.cp-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #4CAF50;
+  border-radius: 3px;
+}
+
+.cp-checkbox:hover {
+  transform: scale(1.1);
+}
+
+/* レスポンシブ */
+@media (max-width: 600px) {
+  .cp-toolbar-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cp-toolbar-right {
+    width: 100%;
+  }
+
+  .cp-btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}

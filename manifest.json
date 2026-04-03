@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "フリマ注文 → クリックポストCSV",
+  "version": "1.0.0",
+  "description": "リベシティフリマの注文管理画面からクリックポスト用CSVを一括生成します",
+  "permissions": [
+    "activeTab",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://furima.libecity.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://furima.libecity.com/seller/orders*"],
+      "js": ["lib/encoding.min.js", "content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "フリマ注文 → クリックポストCSV"
+  }
+}
