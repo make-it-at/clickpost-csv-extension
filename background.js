@@ -72,6 +72,7 @@ async function handleFetchOrders(orders, tabId) {
     }
   }
 
+  console.log('[CP-CSV] fetch完了:', results.filter(r=>r.success).length, '件成功 /', results.length, '件');
   return results;
 }
 
@@ -188,24 +189,33 @@ function truncate(str, maxLen) {
 // CSV ダウンロード (Shift-JIS変換)
 // =========================================================
 async function handleDownloadCSV(csvText, filename) {
+  console.log('[CP-CSV] handleDownloadCSV start, length:', csvText.length);
+
   // Shift-JIS に変換
   const sjisArray = toShiftJIS(csvText);
+  console.log('[CP-CSV] sjisArray length:', sjisArray.length);
 
-  // Blob URL を作成してダウンロード
-  const blob = new Blob([new Uint8Array(sjisArray)], {
-    type: 'application/octet-stream',
-  });
+  // Service Worker では URL.createObjectURL が使えないため data URL を使用
+  const base64 = uint8ArrayToBase64(new Uint8Array(sjisArray));
+  const dataUrl = `data:text/csv;base64,${base64}`;
 
-  const url = URL.createObjectURL(blob);
-
-  await chrome.downloads.download({
-    url: url,
+  console.log('[CP-CSV] downloading as data URL...');
+  const downloadId = await chrome.downloads.download({
+    url: dataUrl,
     filename: filename,
     saveAs: false,
   });
+  console.log('[CP-CSV] download started, id:', downloadId);
+}
 
-  // しばらく後にBlobURLを解放
-  setTimeout(() => URL.revokeObjectURL(url), 60000);
+function uint8ArrayToBase64(uint8arr) {
+  let binary = '';
+  const chunkSize = 8192;
+  for (let i = 0; i < uint8arr.length; i += chunkSize) {
+    const chunk = uint8arr.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
 }
 
 // =========================================================
