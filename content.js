@@ -196,10 +196,11 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
     const rows = getOrderRows();
 
     rows.forEach((row) => {
-      // 既に注入済みならスキップ
-      if (row.querySelector('.cp-checkbox')) return;
+      // 既にラップ済みならスキップ
+      if (row.parentNode && row.parentNode.classList.contains('cp-card-wrapper')) return;
 
       const orderId = extractOrderId(row);
+      console.log('[CP-CSV] orderId:', orderId, row);
       if (!orderId) return;
 
       const cb = document.createElement('input');
@@ -207,21 +208,19 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
       cb.className = 'cp-checkbox';
       cb.dataset.orderId = orderId;
       cb.dataset.orderUrl = `https://furima.libecity.com/seller/orders/${orderId}`;
-
       cb.addEventListener('change', onCheckboxChange);
 
-      // divカード構造に対応したラッパー
-      const cbWrapper = document.createElement('div');
-      cbWrapper.className = 'cp-checkbox-cell';
-      cbWrapper.appendChild(cb);
+      const cbLabel = document.createElement('label');
+      cbLabel.className = 'cp-checkbox-cell';
+      cbLabel.appendChild(cb);
 
-      // カードの先頭に挿入（tr/tdの有無に関わらず対応）
-      const firstCell = row.querySelector('td, th');
-      if (firstCell) {
-        row.insertBefore(cbWrapper, firstCell);
-      } else {
-        row.prepend(cbWrapper);
-      }
+      // カードをラッパーで包んでチェックボックスを左に並べる
+      const wrapper = document.createElement('div');
+      wrapper.className = 'cp-card-wrapper';
+
+      row.parentNode.insertBefore(wrapper, row);
+      wrapper.appendChild(cbLabel);
+      wrapper.appendChild(row);
     });
   }
 

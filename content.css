@@ -159,40 +159,41 @@
   color: #c62828;
 }
 
-/* 注文カードを relative 基準に */
-.statusBox.seller {
-  position: relative !important;
+/* カードとチェックボックスを横並びにするラッパー */
+.cp-card-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-bottom: 8px !important;
 }
 
-/* チェックボックスセル（カード内の左上に絶対位置で配置） */
+/* チェックボックスラベル */
 .cp-checkbox-cell {
-  position: absolute !important;
-  top: 10px !important;
-  left: 10px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  z-index: 100 !important;
-  background: rgba(255,255,255,0.9);
-  border-radius: 4px;
-  padding: 2px;
+  flex-shrink: 0 !important;
+  width: 32px !important;
+  cursor: pointer;
 }
 
 .cp-checkbox {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
+  width: 20px !important;
+  height: 20px !important;
+  cursor: pointer !important;
   accent-color: #4CAF50;
   flex-shrink: 0;
 }
 
-.cp-checkbox:hover {
-  transform: scale(1.1);
+/* ラッパー内のカードは残り幅を占有 */
+.cp-card-wrapper > .statusBox.seller {
+  flex: 1 !important;
+  margin-bottom: 0 !important;
 }
 
 /* チェック済みカードをハイライト */
-.statusBox.seller:has(.cp-checkbox:checked) {
-  outline: 2px solid #4CAF50;
+.cp-card-wrapper:has(.cp-checkbox:checked) .statusBox.seller {
+  outline: 2px solid #4CAF50 !important;
   background-color: #f1f8f1 !important;
 }
 
