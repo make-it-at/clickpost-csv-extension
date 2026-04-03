@@ -145,9 +145,6 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
       container.parentNode.insertBefore(toolbar, container);
     }
 
-    // 「着金確認中・発送準備中の注文のみ表示する」フィルターを自動ON
-    autoEnableShippingFilter();
-
     // チェックボックス注入
     updateCheckboxes();
 
@@ -210,36 +207,6 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
     if (rows.length > 0) return rows[0].parentNode;
 
     return null;
-  }
-
-  function autoEnableShippingFilter() {
-    // 「着金確認中・発送準備中の注文のみ表示する」チェックボックスを自動ON
-    const labels = document.querySelectorAll('label, span');
-    for (const label of labels) {
-      if (label.textContent.includes('着金確認中') || label.textContent.includes('発送準備中')) {
-        const cb = label.querySelector('input[type="checkbox"]') ||
-                   label.previousElementSibling ||
-                   document.querySelector('input[type="checkbox"]');
-        if (cb && cb.type === 'checkbox' && !cb.checked) {
-          cb.click();
-          console.log('[CP-CSV] 発送準備中フィルターをONにしました');
-        }
-        return;
-      }
-    }
-    // ラベルと紐付いていないチェックボックスも探す
-    const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
-    for (const cb of allCheckboxes) {
-      const sibling = cb.nextSibling || cb.parentElement;
-      const text = sibling ? sibling.textContent : '';
-      if (text.includes('着金確認中') || text.includes('発送準備中')) {
-        if (!cb.checked) {
-          cb.click();
-          console.log('[CP-CSV] 発送準備中フィルターをONにしました');
-        }
-        return;
-      }
-    }
   }
 
   function updateCheckboxes() {
