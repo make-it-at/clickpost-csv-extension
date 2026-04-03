@@ -16,11 +16,29 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
   // =========================================================
   // DOM監視 - SPA対応
   // =========================================================
+  let _checkTimer = null;
+  function scheduleCheck() {
+    if (_checkTimer) return; // 既にスケジュール済みならスキップ
+    _checkTimer = setTimeout(() => {
+      _checkTimer = null;
+      checkAndInject();
+    }, 300);
+  }
+
   function startObserver() {
     if (observer) observer.disconnect();
 
-    observer = new MutationObserver(() => {
-      checkAndInject();
+    observer = new MutationObserver((mutations) => {
+      // 自分が注入した要素の変化は無視
+      const isOwnMutation = mutations.every(m =>
+        Array.from(m.addedNodes).every(n =>
+          n.nodeType === 1 && (
+            (n.id && n.id.startsWith('cp-')) ||
+            (n.className && typeof n.className === 'string' && n.className.startsWith('cp-'))
+          )
+        )
+      );
+      if (!isOwnMutation) scheduleCheck();
     });
 
     observer.observe(document.body, {
@@ -35,24 +53,23 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
     console.log('[CP-CSV] checkAndInject path:', path);
 
     if (path.match(/^\/seller\/orders\/[^/]+/)) {
-      console.log('[CP-CSV] 個別ページのためスキップ');
       return;
     }
 
     // 注文行が存在するか確認
     const orderRows = getOrderRows();
     console.log('[CP-CSV] 注文行数:', orderRows.length);
-    if (orderRows.length === 0) {
-      console.log('[CP-CSV] 注文行が見つかりません（まだDOMが未準備かも）');
-      return;
-    }
+    if (orderRows.length === 0) return;
 
-    // 既に注入済みの場合はチェックボックスのみ更新
-    if (document.getElementById('cp-toolbar')) {
+    // 既に注入済みかつDOMに残っている場合はチェックボックスのみ更新
+    const existingToolbar = document.getElementById('cp-toolbar');
+    if (existingToolbar && document.body.contains(existingToolbar)) {
       updateCheckboxes();
       return;
     }
 
+    // ツールバーが消えていた場合は injected フラグをリセット
+    injected = false;
     console.log('[CP-CSV] UI注入開始');
     injectUI();
   }
@@ -313,7 +330,11 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
   // =========================================================
   async function generateCSV() {
     const checkedBoxes = getCheckedBoxes();
-    if (checkedBoxes.length === 0) return;
+    console.log('[CP-CSV] generateCSV called, checked:', checkedBoxes.length);
+    if (checkedBoxes.length === 0) {
+      console.warn('[CP-CSV] チェックされた注文がありません');
+      return;
+    }
 
     const orders = checkedBoxes.slice(0, MAX_ORDERS).map((cb) => ({
       id: cb.dataset.orderId,
