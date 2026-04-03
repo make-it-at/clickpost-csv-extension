@@ -194,18 +194,12 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
 
   function updateCheckboxes() {
     const rows = getOrderRows();
-    console.log('[CP-CSV] updateCheckboxes rows:', rows.length);
 
-    rows.forEach((row, i) => {
-      const parentCls = row.parentNode ? row.parentNode.className : 'NO_PARENT';
-      const alreadyWrapped = row.parentNode && row.parentNode.classList.contains('cp-card-wrapper');
-      console.log(`[CP-CSV] row[${i}] class="${row.className}" parent="${parentCls}" alreadyWrapped=${alreadyWrapped}`);
-
-      // 既にラップ済みならスキップ
-      if (alreadyWrapped) return;
+    rows.forEach((row) => {
+      // 既に注入済みならスキップ
+      if (row.querySelector('.cp-checkbox')) return;
 
       const orderId = extractOrderId(row);
-      console.log('[CP-CSV] orderId:', orderId);
       if (!orderId) return;
 
       const cb = document.createElement('input');
@@ -217,15 +211,19 @@ console.log('[CP-CSV] content.js スクリプト注入OK');
 
       const cbLabel = document.createElement('label');
       cbLabel.className = 'cp-checkbox-cell';
+      cbLabel.title = '選択';
       cbLabel.appendChild(cb);
 
-      // カードをラッパーで包んでチェックボックスを左に並べる
-      const wrapper = document.createElement('div');
-      wrapper.className = 'cp-card-wrapper';
-
-      row.parentNode.insertBefore(wrapper, row);
-      wrapper.appendChild(cbLabel);
-      wrapper.appendChild(row);
+      // .order_action 内（「注文管理画面へ」ボタンの直前）に挿入
+      const orderAction = row.querySelector('.order_action');
+      if (orderAction) {
+        orderAction.insertBefore(cbLabel, orderAction.firstChild);
+      } else {
+        // フォールバック: カード右上に絶対配置
+        row.style.position = 'relative';
+        cbLabel.style.cssText = 'position:absolute;top:8px;right:8px;z-index:50;';
+        row.appendChild(cbLabel);
+      }
     });
   }
 
